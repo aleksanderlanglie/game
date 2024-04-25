@@ -28,17 +28,26 @@ col1, col2 = st.columns(2)
 with col1:
     st.write("Player")
     player_health_bar = st.progress(player_health)
+    player_health_text = st.empty()
     player_mana_bar = st.progress(player_mana)
+    player_mana_text = st.empty()
 with col2:
     st.write("Monster")
     monster_health_bar = st.progress(monster_health)
+    monster_health_text = st.empty()
     monster_mana_bar = st.progress(monster_mana)
+    monster_mana_text = st.empty()
 
 def update_health_bars():
     player_health_bar.progress(player_health)
+    player_health_text.text(f"Health: {player_health}")
     player_mana_bar.progress(player_mana)
+    player_mana_text.text(f"Mana: {player_mana}")
+
     monster_health_bar.progress(monster_health)
+    monster_health_text.text(f"Health: {monster_health}")
     monster_mana_bar.progress(monster_mana)
+    monster_mana_text.text(f"Mana: {monster_mana}")
 
 # Start the combat loop
 if st.button('Start Combat'):
