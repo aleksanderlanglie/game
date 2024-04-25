@@ -1,9 +1,12 @@
 import streamlit as st
 import random
+import time
 
-# Define the player's health and monster's health
+# Define the player's and monster's initial stats
 player_health = 100
 monster_health = 100
+player_mana = 50
+monster_mana = 50
 
 # Skill definitions
 skills = {
@@ -15,34 +18,60 @@ skills = {
 # Streamlit UI
 st.title('Simple Combat Simulator')
 
-# Display health stats
-st.write(f"Player Health: {player_health}")
-st.write(f"Monster Health: {monster_health}")
+# Pre-combat skill and condition setup
+st.subheader('Choose your skill and condition for auto-trigger:')
+chosen_skill = st.selectbox("Select a skill:", list(skills.keys()))
+trigger_health = st.slider("Trigger skill when health below (%):", 0, 100, 30)
 
-# Let the player choose a skill to use
-skill_choice = st.selectbox("Choose your skill:", list(skills.keys()))
+# Layout for player and monster stats
+col1, col2 = st.columns(2)
+with col1:
+    st.write("Player")
+    player_health_bar = st.progress(player_health)
+    player_mana_bar = st.progress(player_mana)
+with col2:
+    st.write("Monster")
+    monster_health_bar = st.progress(monster_health)
+    monster_mana_bar = st.progress(monster_mana)
 
-if st.button('Use Skill'):
-    skill = skills[skill_choice]
+def update_health_bars():
+    player_health_bar.progress(player_health)
+    player_mana_bar.progress(player_mana)
+    monster_health_bar.progress(monster_health)
+    monster_mana_bar.progress(monster_mana)
 
-    if skill_choice == "Heal":
-        player_health += skill["heal_amount"]
-        st.write(f"You have healed yourself for {skill['heal_amount']} health.")
-    else:
-        monster_health -= skill["damage"]
-        st.write(f"You dealt {skill['damage']} damage to the monster.")
+# Start the combat loop
+if st.button('Start Combat'):
+    while player_health > 0 and monster_health > 0:
+        time.sleep(3)  # Wait for 3 seconds between rounds
 
-    # Monster's turn to attack
-    monster_attack = random.randint(5, 15)
-    player_health -= monster_attack
-    st.write(f"The monster attacks you back and deals {monster_attack} damage.")
+        # Player's automatic attack
+        monster_health -= 10
+        update_health_bars()
+        st.write("Player attacks monster for 10 damage.")
+        
+        if player_health <= trigger_health:
+            skill = skills[chosen_skill]
+            if chosen_skill == "Heal" and player_mana >= skill["mana_cost"]:
+                player_health += skill["heal_amount"]
+                player_mana -= skill["mana_cost"]
+                st.write(f"Triggered {chosen_skill} healing yourself for {skill['heal_amount']} health.")
+            elif player_mana >= skill["mana_cost"]:
+                monster_health -= skill["damage"]
+                player_mana -= skill["mana_cost"]
+                st.write(f"Triggered {chosen_skill} dealing {skill['damage']} damage to the monster.")
+            update_health_bars()
 
-    # Update health stats
-    st.write(f"Player Health: {player_health}")
-    st.write(f"Monster Health: {monster_health}")
+        # Monster's turn to attack
+        monster_attack = random.randint(5, 15)
+        player_health -= monster_attack
+        update_health_bars()
+        st.write(f"The monster attacks you back and deals {monster_attack} damage.")
 
-    # Check for end of game
-    if player_health <= 0:
-        st.error("You have been defeated by the monster.")
-    elif monster_health <= 0:
-        st.success("You have defeated the monster!")
+        # Check for end of game
+        if player_health <= 0:
+            st.error("You have been defeated by the monster.")
+            break
+        elif monster_health <= 0:
+            st.success("You have defeated the monster!")
+            break
