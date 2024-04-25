@@ -44,15 +44,21 @@ with col2:
     monster_mana_text = st.empty()
 
 def update_health_bars():
-    player_health_bar.progress(player_health)
-    player_health_text.text(f"Health: {player_health}")
-    player_mana_bar.progress(player_mana)
-    player_mana_text.text(f"Mana: {player_mana}")
+    # Clamp values between 0 and 100 before updating
+    clamped_player_health = max(0, min(100, player_health))
+    clamped_player_mana = max(0, min(100, player_mana))
+    clamped_monster_health = max(0, min(100, monster_health))
+    clamped_monster_mana = max(0, min(100, monster_mana))
 
-    monster_health_bar.progress(monster_health)
-    monster_health_text.text(f"Health: {monster_health}")
-    monster_mana_bar.progress(monster_mana)
-    monster_mana_text.text(f"Mana: {monster_mana}")
+    player_health_bar.progress(clamped_player_health)
+    player_health_text.text(f"Health: {clamped_player_health}")
+    player_mana_bar.progress(clamped_player_mana)
+    player_mana_text.text(f"Mana: {clamped_player_mana}")
+
+    monster_health_bar.progress(clamped_monster_health)
+    monster_health_text.text(f"Health: {clamped_monster_health}")
+    monster_mana_bar.progress(clamped_monster_mana)
+    monster_mana_text.text(f"Mana: {clamped_monster_mana}")
 
 # Start the combat loop
 if st.button('Start Combat'):
